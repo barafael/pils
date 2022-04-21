@@ -1,0 +1,25 @@
+WHITESPACE = _{ " " }
+
+Number = @{
+    "-"? ~ ASCII_DIGIT+
+}
+
+Symbol = {
+    "list" | "head" | "tail" | "join" | "eval" | "+" | "-" | "*" | "/" | "%"
+}
+
+Expr = {
+    Number | Symbol | Sexpr | Qexpr
+}
+
+Sexpr = {
+    "(" ~ Expr* ~ ")"
+}
+
+Qexpr = {
+    "{" ~ Expr* ~ "}"
+}
+
+Slipstream = {
+    Expr*
+}
