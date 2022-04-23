@@ -1,7 +1,16 @@
 [package]
 name = "slipstream"
+authors = ["Rafael Bachmann <rafael.bachmann.93@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
+
+[[bin]]
+name = "slipstream"
+path = "src/main.rs"
+
+[lib]
+name = "slipstream"
+path = "src/lib.rs"
 
 [dependencies]
 anyhow = { version = "1.0.56", features = ["std", "backtrace"] }
