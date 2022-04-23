@@ -21,7 +21,7 @@ impl Qexpr {
         if self.0.is_empty() {
             return Value::Err("Function 'tail' passed {}".to_string());
         }
-        drop(self.0.pop_front().unwrap());
+        self.0.pop_front().unwrap();
         Value::Qexpr(Self(self.0))
     }
 
@@ -45,9 +45,9 @@ impl Qexpr {
 
 impl std::fmt::Display for Qexpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{{ ")?;
-        write!(f, "{}", self.0.iter().join(" "))?;
-        write!(f, " }}")?;
+        write!(f, "{{")?;
+        write!(f, " {} ", self.0.iter().join(" "))?;
+        write!(f, "}}")?;
         Ok(())
     }
 }
@@ -134,23 +134,19 @@ mod test {
 
     #[test]
     fn eval() {
-        let qexpr = Value::Sexpr(Sexpr(
-            [Value::Qexpr(Qexpr(
-                [
-                    Value::Sym("head".to_string()),
-                    Value::Qexpr(Qexpr(
-                        [Value::Num(1), Value::Num(2), Value::Num(3), Value::Num(4)]
-                            .into_iter()
-                            .collect::<VecDeque<_>>(),
-                    )),
-                ]
-                .into_iter()
-                .collect::<VecDeque<_>>(),
-            ))]
+        let value = Qexpr(
+            [
+                Value::Sym("head".to_string()),
+                Value::Qexpr(Qexpr(
+                    [Value::Num(1), Value::Num(2), Value::Num(3), Value::Num(4)]
+                        .into_iter()
+                        .collect::<VecDeque<_>>(),
+                )),
+            ]
             .into_iter()
             .collect::<VecDeque<_>>(),
-        ));
-        let result = qexpr.eval();
+        );
+        let result = Qexpr::eval(value);
 
         let expected = Value::Qexpr(Qexpr([Value::Num(1)].into_iter().collect::<VecDeque<_>>()));
         assert_eq!(expected, result);

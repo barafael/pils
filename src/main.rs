@@ -18,7 +18,10 @@ fn main() -> anyhow::Result<()> {
                     break;
                 }
                 prompt.add_history_entry(&line);
-                process(line.as_str()).context("Failed to process input")?;
+
+                
+                let result = process(line.as_str()).context("Failed to process input")?;
+                println!("{}", result);
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
@@ -37,9 +40,8 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn process(line: &str) -> anyhow::Result<()> {
+fn process(line: &str) -> anyhow::Result<Value> {
     let mut pairs = Slipstream::parse(Rule::Slipstream, line).context("Failed to parse input")?;
-    println!("{:#?}", pairs);
     let pair = pairs.next().context("Can't make value of empty pair")?;
 
     if pairs.next().is_some() {
@@ -49,10 +51,6 @@ fn process(line: &str) -> anyhow::Result<()> {
     let val = Value::from_pair(pair)
         .context("Failed to make value of pairs")?
         .unwrap();
-    println!("{:#?}", val);
 
-    let result = Value::eval(val);
-    println!("result: {:#}", result);
-
-    Ok(())
+    Ok(Value::eval(val))
 }

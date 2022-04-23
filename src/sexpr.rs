@@ -1,5 +1,5 @@
-use itertools::Itertools;
 use crate::{qexpr::Qexpr, value::Value};
+use itertools::Itertools;
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -54,8 +54,24 @@ impl Sexpr {
                     Value::Err("Function 'tail' passed incorrect type.".to_string())
                 }
             }
-            "join" => Qexpr(evaluated).join(),
-            "eval" => Qexpr(evaluated).eval(),
+            "join" => {
+                if evaluated.len() != 1 {
+                    Value::Err("Function 'join' passed too many arguments.".to_string())
+                } else if let Value::Qexpr(q) = evaluated[0].clone() {
+                    q.join()
+                } else {
+                    Value::Err("Function 'join' passed incorrect type.".to_string())
+                }
+            }
+            "eval" => {
+                if evaluated.len() != 1 {
+                    Value::Err("Function 'eval' passed too many arguments.".to_string())
+                } else if let Value::Qexpr(q) = evaluated[0].clone() {
+                    q.eval()
+                } else {
+                    Value::Err("Function 'eval' passed incorrect type.".to_string())
+                }
+            }
             _ => Value::Err("Invalid operator".to_string()),
         }
     }
@@ -93,9 +109,9 @@ impl Sexpr {
 
 impl std::fmt::Display for Sexpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "( ")?;
-        write!(f, "{}", self.0.iter().join(" "))?;
-        write!(f, " )")?;
+        write!(f, "(")?;
+        write!(f, " {} ", self.0.iter().join(" "))?;
+        write!(f, ")")?;
         Ok(())
     }
 }
@@ -105,7 +121,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn evals_op_sexpr() {
+    fn sexpr_multiplication() {
         let operands = Sexpr(
             [Value::Num(1), Value::Num(2), Value::Num(4)]
                 .into_iter()
