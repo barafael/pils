@@ -1,6 +1,6 @@
 use anyhow::Context;
 use rustyline::{error::ReadlineError, Editor};
-use slipstream::process;
+use slipstream::{help_text, process};
 
 fn main() -> anyhow::Result<()> {
     let mut prompt = Editor::<()>::new();
@@ -11,6 +11,11 @@ fn main() -> anyhow::Result<()> {
                     break;
                 }
                 prompt.add_history_entry(&line);
+
+                if line == "help" {
+                    println!("{}", help_text());
+                    continue;
+                }
 
                 let result = process(line.as_str()).context("Failed to process input")?;
                 println!("{}", result);

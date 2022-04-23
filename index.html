@@ -10,7 +10,7 @@
 
 <body>
   <script type="module">
-    import init, { process_str } from "./pkg/slipstream.js";
+    import init, { process_str, help_text } from "./pkg/slipstream.js";
 
     init()
       .then(() => {
@@ -23,7 +23,7 @@
     });
     term.open(document.getElementById('terminal'));
     term.prompt = () => {
-      term.write("\r\nslipstream >> ");
+      term.write("slipstream >> ");
     };
     term.prompt();
 
@@ -31,10 +31,15 @@
       term.write(e.key)
       line += e.key
       if (e.key == '\r') {
-        let result = process_str(line)
-        line = ""
-        term.write('\n');
-        term.write(result);
+        if (line.startsWith("help")) {
+          term.write(help_text())
+        } else {
+          let result = process_str(line)
+          line = ""
+          term.write('\n');
+          term.write(result);
+        }
+        term.write("\r\n");
         term.prompt()
       }
     });
