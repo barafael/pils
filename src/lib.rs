@@ -28,6 +28,7 @@ pub fn process(line: &str) -> Result<Value, Error> {
 }
 
 #[wasm_bindgen]
+#[must_use]
 pub fn help_text() -> String {
     r#"
 Welcome to slipstream, a simple lisp :)
@@ -67,6 +68,7 @@ Thanks and credits to Daniel Holden for this brilliant resource.
 }
 
 #[wasm_bindgen]
+#[must_use]
 pub fn process_str(line: &str) -> String {
     let result = process(line);
     match result {
