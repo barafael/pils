@@ -528,15 +528,15 @@ dependencies = [
 name = "slipstream"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "itertools",
  "pest",
  "pest_derive",
+ "thiserror",
  "wasm-bindgen",
 ]
 
 [[package]]
-name = "slipstream-interpreter"
+name = "slipstream-repl"
 version = "0.1.0"
 dependencies = [
  "anyhow",

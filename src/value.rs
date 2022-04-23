@@ -1,6 +1,6 @@
+use crate::error::Error;
 use crate::parser::Rule;
 use crate::{qexpr::Qexpr, sexpr::Sexpr};
-use anyhow::Context;
 use pest::iterators::Pair;
 use std::collections::VecDeque;
 
@@ -21,7 +21,7 @@ impl Value {
         }
     }
 
-    pub fn from_pair(pair: Pair<Rule>) -> anyhow::Result<Option<Self>> {
+    pub fn from_pair(pair: Pair<Rule>) -> Result<Option<Self>, Error> {
         let val = match pair.as_rule() {
             Rule::WHITESPACE => return Ok(None),
             Rule::Expr => pair
@@ -29,25 +29,25 @@ impl Value {
                 .map(Self::from_pair)
                 .find_map(Result::transpose)
                 .unwrap() // Expression must contain exactly one value as per grammar.
-                .context("Failed to parse expression")?,
+                .map_err(|_| Error::ParseExpression)?,
             Rule::Sexpr | Rule::Slipstream => Self::Sexpr(Sexpr(
                 pair.into_inner()
                     .map(Self::from_pair)
                     .filter_map(Result::transpose)
                     .collect::<Result<VecDeque<_>, _>>()
-                    .context("Failed to parse s-expression")?,
+                    .map_err(|_| Error::ParseSExpression)?,
             )),
             Rule::Qexpr => Self::Qexpr(Qexpr(
                 pair.into_inner()
                     .map(Self::from_pair)
                     .filter_map(Result::transpose)
                     .collect::<Result<VecDeque<_>, _>>()
-                    .context("Failed to parse Qexpr")?,
+                    .map_err(|_| Error::ParseQExpression)?,
             )),
             Rule::Symbol => Self::Sym(pair.as_str().to_string()),
             Rule::Number => Self::Num(
                 str::parse(pair.as_str())
-                    .context(format!("Failed to parse number from {}", pair.as_str()))?,
+                    .map_err(|_| Error::ParseNumber(pair.as_str().to_string()))?,
             ),
         };
         Ok(Some(val))
