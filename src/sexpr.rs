@@ -6,9 +6,7 @@ pub struct Sexpr(pub(crate) VecDeque<Value>);
 
 impl Sexpr {
     pub fn eval(self) -> Value {
-        dbg!(&self);
         let mut evaluated = self.0.into_iter().map(Value::eval).collect::<VecDeque<_>>();
-        dbg!(&evaluated);
         match evaluated.iter().find(|elem| matches!(elem, Value::Err(_))) {
             Some(err) => {
                 return err.clone();

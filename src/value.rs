@@ -102,7 +102,6 @@ mod test {
             .into_iter()
             .collect::<VecDeque<_>>(),
         ));
-        dbg!(&value);
         let result = Value::eval(value);
         assert_eq!(
             result,

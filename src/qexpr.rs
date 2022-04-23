@@ -17,7 +17,6 @@ impl Qexpr {
     }
 
     pub fn tail(mut self) -> Value {
-        dbg!(&self);
         if self.0.is_empty() {
             return Value::Err("Function 'tail' passed {}".to_string());
         }
@@ -120,6 +119,30 @@ mod test {
         ));
 
         let result = qexpr.join();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn eval() {
+        let qexpr = Value::Sexpr(Sexpr(
+            [Value::Qexpr(Qexpr(
+                [
+                    Value::Sym("head".to_string()),
+                    Value::Qexpr(Qexpr(
+                        [Value::Num(1), Value::Num(2), Value::Num(3), Value::Num(4)]
+                            .into_iter()
+                            .collect::<VecDeque<_>>(),
+                    )),
+                ]
+                .into_iter()
+                .collect::<VecDeque<_>>(),
+            ))]
+            .into_iter()
+            .collect::<VecDeque<_>>(),
+        ));
+        let result = qexpr.eval();
+
+        let expected = Value::Qexpr(Qexpr([Value::Num(1)].into_iter().collect::<VecDeque<_>>()));
         assert_eq!(expected, result);
     }
 }
