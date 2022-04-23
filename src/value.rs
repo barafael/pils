@@ -60,7 +60,7 @@ mod test {
 
     #[test]
     fn tail_qexpr() {
-        let sexpr = Sexpr(
+        let sexpr = Value::Sexpr(Sexpr(
             [
                 Value::Sym("tail".to_string()),
                 Value::Qexpr(Qexpr(
@@ -75,8 +75,8 @@ mod test {
             ]
             .into_iter()
             .collect::<VecDeque<_>>(),
-        );
-        let result = Value::eval(Value::Sexpr(sexpr));
+        ));
+        let result = Value::eval(sexpr);
         assert_eq!(
             result,
             Value::Qexpr(Qexpr(
@@ -91,21 +91,19 @@ mod test {
     }
 
     #[test]
-    fn list_expr_to_qexpr() {
-        let sexpr = Sexpr(
+    fn list_sexpr_to_qexpr() {
+        let value = Value::Sexpr(Sexpr(
             [
                 Value::Sym("list".to_string()),
-                Value::Sexpr(Sexpr(
-                    [Value::Num(1), Value::Num(2), Value::Num(3)]
-                        .into_iter()
-                        .collect::<VecDeque<_>>(),
-                )),
+                Value::Num(1),
+                Value::Num(2),
+                Value::Num(3),
             ]
             .into_iter()
             .collect::<VecDeque<_>>(),
-        );
-        dbg!(&sexpr);
-        let result = Value::eval(Value::Sexpr(sexpr));
+        ));
+        dbg!(&value);
+        let result = Value::eval(value);
         assert_eq!(
             result,
             Value::Qexpr(Qexpr(

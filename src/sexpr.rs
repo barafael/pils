@@ -30,26 +30,38 @@ impl Sexpr {
             }
         };
 
-        match evaluated.pop_front() {
-            Some(Value::Sexpr(s)) => match sym.as_str() {
-                "list" => Value::Qexpr(Qexpr(s.0)),
-                "+" | "-" | "/" | "*" => s.op(sym.as_str()),
-                _ => Value::Err("Invalid operator".to_string()),
-            },
-            Some(Value::Qexpr(q)) => match sym.as_str() {
-                "head" => q.head(),
-                "tail" => q.tail(),
-                "join" => q.join(),
-                "eval" => q.eval(),
-                _ => Value::Err("Invalid operator".to_string()),
-            },
-            _ => {
-                return Value::Err("Invalid type".to_string());
+        let operator = match sym.as_str() {
+            "list" => return Value::Qexpr(Qexpr(evaluated)),
+            "+" | "-" | "/" | "*" => return Self(evaluated).op(sym.as_str()),
+            o => o,
+        };
+
+        match operator {
+            "head" => {
+                if evaluated.len() != 1 {
+                    Value::Err("Function 'head' passed too many arguments.".to_string())
+                } else if let Value::Qexpr(q) = evaluated[0].clone() {
+                    q.head()
+                } else {
+                    Value::Err("Function 'head' passed incorrect type.".to_string())
+                }
             }
+            "tail" => {
+                if evaluated.len() != 1 {
+                    Value::Err("Function 'tail' passed too many arguments.".to_string())
+                } else if let Value::Qexpr(q) = evaluated[0].clone() {
+                    q.tail()
+                } else {
+                    Value::Err("Function 'tail' passed incorrect type.".to_string())
+                }
+            }
+            "join" => Qexpr(evaluated).join(),
+            "eval" => Qexpr(evaluated).eval(),
+            _ => Value::Err("Invalid operator".to_string()),
         }
     }
 
-    pub fn op(self, sym: &str) -> Value {
+    pub fn op(self, operator: &str) -> Value {
         let mut results = VecDeque::new();
         for num in self.0 {
             match num {
@@ -58,7 +70,7 @@ impl Sexpr {
             }
         }
 
-        match sym {
+        match operator {
             "+" => Value::Num(results.into_iter().sum()),
             "-" => Value::Num(results.into_iter().fold(0, |acc, val| acc - val)),
             "*" => Value::Num(results.into_iter().product()),
@@ -77,5 +89,38 @@ impl Sexpr {
             }
             _ => Value::Err("Invalid operator".to_string()),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn evals_op_sexpr() {
+        let operands = Sexpr(
+            [Value::Num(1), Value::Num(2), Value::Num(4)]
+                .into_iter()
+                .collect::<VecDeque<_>>(),
+        );
+        let result = operands.op("*");
+        assert_eq!(result, Value::Num(8));
+    }
+
+    #[test]
+    fn rejects_to_divide_by_zero() {
+        let operands = Sexpr(
+            [Value::Num(12), Value::Num(0), Value::Num(4)]
+                .into_iter()
+                .collect::<VecDeque<_>>(),
+        );
+        let result = operands.op("/");
+        assert_eq!(result, Value::Err("Division by zero!".to_string()));
+    }
+
+    #[test]
+    fn unary_minus() {
+        let operands = Sexpr([Value::Num(12)].into_iter().collect::<VecDeque<_>>());
+        assert_eq!(operands.op("-"), Value::Num(-12));
     }
 }

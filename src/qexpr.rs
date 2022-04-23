@@ -9,14 +9,19 @@ impl Qexpr {
         if self.0.is_empty() {
             return Value::Err("Function 'head' passed {}".to_string());
         }
-        self.0.pop_front().unwrap()
+        Value::Qexpr(Self(
+            [self.0.pop_front().unwrap()]
+                .into_iter()
+                .collect::<VecDeque<_>>(),
+        ))
     }
 
     pub fn tail(mut self) -> Value {
+        dbg!(&self);
         if self.0.is_empty() {
             return Value::Err("Function 'tail' passed {}".to_string());
         }
-        let _ = self.0.pop_front().unwrap();
+        drop(self.0.pop_front().unwrap());
         Value::Qexpr(Self(self.0))
     }
 
@@ -51,7 +56,10 @@ mod test {
                 .collect::<VecDeque<_>>(),
         );
         let head = qexpr.head();
-        assert_eq!(head, Value::Num(1));
+        assert_eq!(
+            head,
+            Value::Qexpr(Qexpr([Value::Num(1)].into_iter().collect::<VecDeque<_>>()))
+        );
     }
 
     #[test]
