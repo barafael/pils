@@ -1,6 +1,7 @@
+use crate::eval_error::EvalError;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Clone, PartialEq, Eq)]
 pub enum Error {
     #[error("Failed to make value of pairs")]
     MakeValue,
@@ -25,4 +26,7 @@ pub enum Error {
 
     #[error("Failed to parse number from {0}")]
     ParseNumber(String),
+
+    #[error("Failed to evaluate expression: {0}")]
+    Eval(#[from] EvalError),
 }

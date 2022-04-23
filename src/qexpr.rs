@@ -1,4 +1,4 @@
-use crate::{sexpr::Sexpr, value::Value};
+use crate::{eval_error::EvalError, sexpr::Sexpr, value::Value};
 use itertools::Itertools;
 use std::collections::VecDeque;
 
@@ -6,38 +6,38 @@ use std::collections::VecDeque;
 pub struct Qexpr(pub(crate) VecDeque<Value>);
 
 impl Qexpr {
-    pub fn head(mut self) -> Value {
+    pub fn head(mut self) -> Result<Value, EvalError> {
         if self.0.is_empty() {
-            return Value::Err("Function 'head' passed {}".to_string());
+            return Err(EvalError::HeadOnEmpty);
         }
-        Value::Qexpr(Self(
+        Ok(Value::Qexpr(Self(
             [self.0.pop_front().unwrap()]
                 .into_iter()
                 .collect::<VecDeque<_>>(),
-        ))
+        )))
     }
 
-    pub fn tail(mut self) -> Value {
+    pub fn tail(mut self) -> Result<Value, EvalError> {
         if self.0.is_empty() {
-            return Value::Err("Function 'tail' passed {}".to_string());
+            return Err(EvalError::TailOnEmpty);
         }
         self.0.pop_front().unwrap();
-        Value::Qexpr(Self(self.0))
+        Ok(Value::Qexpr(Self(self.0)))
     }
 
-    pub fn join(self) -> Value {
+    pub fn join(self) -> Result<Value, EvalError> {
         let mut joined = VecDeque::new();
         for child in self.0 {
             let mut child = match child {
                 Value::Qexpr(child) => child,
-                _ => return Value::Err("Function 'join' passed incorrect type".to_string()),
+                _ => return Err(EvalError::JoinOnNonQexpr),
             };
             joined.append(&mut child.0);
         }
-        Value::Qexpr(Self(joined))
+        Ok(Value::Qexpr(Self(joined)))
     }
 
-    pub fn eval(self) -> Value {
+    pub fn eval(self) -> Result<Value, EvalError> {
         let sexpr = Sexpr(self.0);
         sexpr.eval()
     }
@@ -64,7 +64,7 @@ mod test {
                 .into_iter()
                 .collect::<VecDeque<_>>(),
         );
-        let head = qexpr.head();
+        let head = qexpr.head().unwrap();
         assert_eq!(
             head,
             Value::Qexpr(Qexpr([Value::Num(1)].into_iter().collect::<VecDeque<_>>()))
@@ -78,7 +78,7 @@ mod test {
                 .into_iter()
                 .collect::<VecDeque<_>>(),
         );
-        let tail = qexpr.tail();
+        let tail = qexpr.tail().unwrap();
         assert_eq!(
             tail,
             Value::Qexpr(Qexpr(
@@ -128,7 +128,7 @@ mod test {
             .collect::<VecDeque<_>>(),
         ));
 
-        let result = qexpr.join();
+        let result = qexpr.join().unwrap();
         assert_eq!(expected, result);
     }
 
@@ -146,7 +146,7 @@ mod test {
             .into_iter()
             .collect::<VecDeque<_>>(),
         );
-        let result = Qexpr::eval(value);
+        let result = Qexpr::eval(value).unwrap();
 
         let expected = Value::Qexpr(Qexpr([Value::Num(1)].into_iter().collect::<VecDeque<_>>()));
         assert_eq!(expected, result);

@@ -1,4 +1,4 @@
-use crate::{qexpr::Qexpr, value::Value};
+use crate::{eval_error::EvalError, qexpr::Qexpr, value::Value};
 use itertools::Itertools;
 use std::collections::VecDeque;
 
@@ -6,31 +6,27 @@ use std::collections::VecDeque;
 pub struct Sexpr(pub(crate) VecDeque<Value>);
 
 impl Sexpr {
-    pub fn eval(self) -> Value {
-        let mut evaluated = self.0.into_iter().map(Value::eval).collect::<VecDeque<_>>();
-        match evaluated.iter().find(|elem| matches!(elem, Value::Err(_))) {
-            Some(err) => {
-                return err.clone();
-            }
-            None => {}
-        }
+    pub fn eval(self) -> Result<Value, EvalError> {
+        let mut evaluated = self
+            .0
+            .into_iter()
+            .map(Value::eval)
+            .collect::<Result<VecDeque<_>, EvalError>>()?;
 
         if evaluated.len() == 1 {
-            return evaluated[0].clone();
+            return Ok(evaluated[0].clone());
         }
 
         let sym = match evaluated.pop_front() {
             Some(Value::Sym(str)) => str,
-            Some(v) => {
-                return Value::Err(format!("S-expression does not start with symbol: {:?}", v));
-            }
+            Some(v) => return Err(EvalError::SExprDoesNotStartWithSymbol(v)),
             None => {
-                return Value::Sexpr(Self(evaluated));
+                return Ok(Value::Sexpr(Self(evaluated)));
             }
         };
 
         let operator = match sym.as_str() {
-            "list" => return Value::Qexpr(Qexpr(evaluated)),
+            "list" => return Ok(Value::Qexpr(Qexpr(evaluated))),
             "+" | "-" | "/" | "*" => return Self(evaluated).op(sym.as_str()),
             o => o,
         };
@@ -38,71 +34,73 @@ impl Sexpr {
         match operator {
             "head" => {
                 if evaluated.len() != 1 {
-                    Value::Err("Function 'head' passed too many arguments.".to_string())
+                    Err(EvalError::HeadOnTooManyArgs)
                 } else if let Value::Qexpr(q) = evaluated[0].clone() {
                     q.head()
                 } else {
-                    Value::Err("Function 'head' passed incorrect type.".to_string())
+                    Err(EvalError::HeadOnNonQexpr)
                 }
             }
             "tail" => {
                 if evaluated.len() != 1 {
-                    Value::Err("Function 'tail' passed too many arguments.".to_string())
+                    Err(EvalError::TailOnTooManyArgs)
                 } else if let Value::Qexpr(q) = evaluated[0].clone() {
                     q.tail()
                 } else {
-                    Value::Err("Function 'tail' passed incorrect type.".to_string())
+                    Err(EvalError::TailOnNonQexpr)
                 }
             }
             "join" => {
                 if evaluated.len() != 1 {
-                    Value::Err("Function 'join' passed too many arguments.".to_string())
+                    Err(EvalError::JoinOnTooManyArgs)
                 } else if let Value::Qexpr(q) = evaluated[0].clone() {
                     q.join()
                 } else {
-                    Value::Err("Function 'join' passed incorrect type.".to_string())
+                    Err(EvalError::JoinOnNonQexpr)
                 }
             }
             "eval" => {
                 if evaluated.len() != 1 {
-                    Value::Err("Function 'eval' passed too many arguments.".to_string())
+                    Err(EvalError::EvalOnTooManyArgs)
                 } else if let Value::Qexpr(q) = evaluated[0].clone() {
                     q.eval()
                 } else {
-                    Value::Err("Function 'eval' passed incorrect type.".to_string())
+                    Err(EvalError::EvalOnNonQexpr)
                 }
             }
-            _ => Value::Err("Invalid operator".to_string()),
+            op => Err(EvalError::InvalidOperator(op.to_string())),
         }
     }
 
-    pub fn op(self, operator: &str) -> Value {
+    pub fn op(self, operator: &str) -> Result<Value, EvalError> {
         let mut results = VecDeque::new();
         for num in self.0 {
             match num {
                 Value::Num(num) => results.push_back(num),
-                _ => return Value::Err("Cannot operate on non-number!".to_string()),
+                val => return Err(EvalError::NonNumber(val)),
             }
         }
 
         match operator {
-            "+" => Value::Num(results.into_iter().sum()),
-            "-" => Value::Num(results.into_iter().fold(0, |acc, val| acc - val)),
-            "*" => Value::Num(results.into_iter().product()),
+            "+" => Ok(Value::Num(results.into_iter().sum())),
+            "-" => Ok(Value::Num(
+                results.into_iter().fold(0, |acc, val| acc - val),
+            )),
+            "*" => Ok(Value::Num(results.into_iter().product())),
             "/" => {
                 if results.iter().any(|num| *num == 0) {
-                    return Value::Err("Division by zero!".to_string());
+                    return Err(EvalError::DivisionByZero);
                 }
                 if results.len() == 1 {
-                    return Value::Num(results[0]);
+                    return Ok(Value::Num(results[0]));
                 }
                 let mut fst = results[0];
                 for val in results.iter().skip(1) {
                     fst /= val;
                 }
-                Value::Num(fst)
+                Ok(Value::Num(fst))
             }
-            _ => Value::Err("Invalid operator".to_string()),
+            op => Err(EvalError::InvalidOperator(op.to_string())),
         }
     }
 }
@@ -119,6 +117,7 @@ impl std::fmt::Display for Sexpr {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::eval_error::EvalError;
 
     #[test]
     fn sexpr_multiplication() {
@@ -127,7 +126,7 @@ mod test {
                 .into_iter()
                 .collect::<VecDeque<_>>(),
         );
-        let result = operands.op("*");
+        let result = operands.op("*").unwrap();
         assert_eq!(result, Value::Num(8));
     }
 
@@ -138,13 +137,13 @@ mod test {
                 .into_iter()
                 .collect::<VecDeque<_>>(),
         );
-        let result = operands.op("/");
-        assert_eq!(result, Value::Err("Division by zero!".to_string()));
+        let result = operands.op("/").unwrap_err();
+        assert_eq!(result, EvalError::DivisionByZero);
     }
 
     #[test]
     fn unary_minus() {
         let operands = Sexpr([Value::Num(12)].into_iter().collect::<VecDeque<_>>());
-        assert_eq!(operands.op("-"), Value::Num(-12));
+        assert_eq!(operands.op("-").unwrap(), Value::Num(-12));
     }
 }

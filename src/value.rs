@@ -1,4 +1,5 @@
 use crate::error::Error;
+use crate::eval_error::EvalError;
 use crate::parser::Rule;
 use crate::{qexpr::Qexpr, sexpr::Sexpr};
 use pest::iterators::Pair;
@@ -7,17 +8,16 @@ use std::collections::VecDeque;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Value {
     Num(i64),
-    Err(String), // TODO thiserror :)
     Sym(String),
     Sexpr(Sexpr),
     Qexpr(Qexpr),
 }
 
 impl Value {
-    pub fn eval(self) -> Self {
+    pub fn eval(self) -> Result<Self, EvalError> {
         match self {
             Value::Sexpr(s) => Sexpr::eval(s),
-            v => v,
+            v => Ok(v),
         }
     }
 
@@ -58,7 +58,6 @@ impl std::fmt::Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Value::Num(n) => write!(f, "{}", n),
-            Value::Err(e) => write!(f, "error: {}", e),
             Value::Sym(s) => write!(f, "{}", s),
             Value::Sexpr(s) => write!(f, "{}", s),
             Value::Qexpr(q) => write!(f, "{}", q),
@@ -88,7 +87,7 @@ mod test {
             .into_iter()
             .collect::<VecDeque<_>>(),
         ));
-        let result = Value::eval(sexpr);
+        let result = Value::eval(sexpr).unwrap();
         assert_eq!(
             result,
             Value::Qexpr(Qexpr(
@@ -114,7 +113,7 @@ mod test {
             .into_iter()
             .collect::<VecDeque<_>>(),
         ));
-        let result = Value::eval(value);
+        let result = Value::eval(value).unwrap();
         assert_eq!(
             result,
             Value::Qexpr(Qexpr(

@@ -5,6 +5,7 @@ use pest::Parser;
 use wasm_bindgen::prelude::*;
 
 mod error;
+mod eval_error;
 mod parser;
 mod qexpr;
 mod sexpr;
