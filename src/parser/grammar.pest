@@ -5,7 +5,7 @@ Number = @{
 }
 
 Symbol = {
-    "list" | "head" | "tail" | "join" | "eval" | "+" | "-" | "*" | "/" | "%"
+    "list" | "head" | "tail" | "join" | "eval" | "+" | "-" | "*" | "/"
 }
 
 Expr = {

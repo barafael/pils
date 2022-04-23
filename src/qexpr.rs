@@ -1,4 +1,5 @@
 use crate::{sexpr::Sexpr, value::Value};
+use itertools::Itertools;
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -39,6 +40,15 @@ impl Qexpr {
     pub fn eval(self) -> Value {
         let sexpr = Sexpr(self.0);
         sexpr.eval()
+    }
+}
+
+impl std::fmt::Display for Qexpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{{ ")?;
+        write!(f, "{}", self.0.iter().join(" "))?;
+        write!(f, " }}")?;
+        Ok(())
     }
 }
 

@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use crate::{qexpr::Qexpr, value::Value};
 use std::collections::VecDeque;
 
@@ -87,6 +88,15 @@ impl Sexpr {
             }
             _ => Value::Err("Invalid operator".to_string()),
         }
+    }
+}
+
+impl std::fmt::Display for Sexpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "( ")?;
+        write!(f, "{}", self.0.iter().join(" "))?;
+        write!(f, " )")?;
+        Ok(())
     }
 }
 

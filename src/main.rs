@@ -52,7 +52,7 @@ fn process(line: &str) -> anyhow::Result<()> {
     println!("{:#?}", val);
 
     let result = Value::eval(val);
-    println!("result: {:#?}", result);
+    println!("result: {:#}", result);
 
     Ok(())
 }
