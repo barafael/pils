@@ -392,6 +392,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "pils"
+version = "0.1.0"
+dependencies = [
+ "itertools",
+ "pest",
+ "pest_derive",
+ "thiserror",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "pils-repl"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "pils",
+ "rustyline",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -522,26 +542,6 @@ dependencies = [
  "digest",
  "fake-simd",
  "opaque-debug",
-]
-
-[[package]]
-name = "slipstream"
-version = "0.1.0"
-dependencies = [
- "itertools",
- "pest",
- "pest_derive",
- "thiserror",
- "wasm-bindgen",
-]
-
-[[package]]
-name = "slipstream-repl"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "rustyline",
- "slipstream",
 ]
 
 [[package]]

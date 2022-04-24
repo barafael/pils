@@ -30,7 +30,7 @@ impl Value {
                 .find_map(Result::transpose)
                 .unwrap() // Expression must contain exactly one value as per grammar.
                 .map_err(|_| Error::ParseExpression)?,
-            Rule::Sexpr | Rule::Slipstream => Self::Sexpr(Sexpr(
+            Rule::Sexpr | Rule::Pils => Self::Sexpr(Sexpr(
                 pair.into_inner()
                     .map(Self::from_pair)
                     .filter_map(Result::transpose)

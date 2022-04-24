@@ -20,6 +20,6 @@ Qexpr = {
     "{" ~ Expr* ~ "}"
 }
 
-Slipstream = {
+Pils = {
     Expr*
 }

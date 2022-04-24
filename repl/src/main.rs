@@ -1,11 +1,11 @@
 use anyhow::Context;
+use pils::{help_text, process};
 use rustyline::{error::ReadlineError, Editor};
-use slipstream::{help_text, process};
 
 fn main() -> anyhow::Result<()> {
     let mut prompt = Editor::<()>::new();
     loop {
-        match prompt.readline("slipstream >> ") {
+        match prompt.readline("pils >> ") {
             Ok(line) => {
                 if line == "exit" || line == "quit" {
                     break;

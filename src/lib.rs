@@ -1,6 +1,6 @@
-use crate::{parser::Slipstream, value::Value};
+use crate::value::Value;
 use error::Error;
-use parser::Rule;
+use parser::{Pils, Rule};
 use pest::Parser;
 use wasm_bindgen::prelude::*;
 
@@ -12,8 +12,8 @@ mod sexpr;
 mod value;
 
 pub fn process(line: &str) -> Result<Value, Error> {
-    let mut pairs = Slipstream::parse(Rule::Slipstream, line)
-        .map_err(|_| Error::ParseInput(line.to_string()))?;
+    let mut pairs =
+        Pils::parse(Rule::Pils, line).map_err(|_| Error::ParseInput(line.to_string()))?;
     let pair = pairs.next().ok_or(Error::EmptyPair)?;
 
     if pairs.next().is_some() {
@@ -41,7 +41,7 @@ pub fn process_str(line: &str) -> String {
 #[must_use]
 pub fn help_text() -> String {
     r#"
-Welcome to slipstream, a simple lisp :)
+Welcome to pils, a simple lisp :)
 
 example expressions:
     * 1 2 3 4 ( + 3 4) 0

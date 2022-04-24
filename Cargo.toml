@@ -1,9 +1,9 @@
 [package]
-name = "slipstream"
+name = "pils"
 authors = ["Rafael Bachmann <rafael.bachmann.93@gmail.com>"]
 version = "0.1.0"
 description = "Super simple lisp inspired by buildyourownlisp.com, in pure Rust."
-repository = "https://github.com/barafael/slipstream"
+repository = "https://github.com/barafael/pils"
 license = "Apache-2.0"
 edition = "2021"
 

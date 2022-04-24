@@ -10,7 +10,7 @@
 
 <body>
   <script type="module">
-    import init, { process_str, help_text } from "./pkg/slipstream.js";
+    import init, { process_str, help_text } from "./pkg/pils.js";
 
     init()
       .then(() => {
@@ -23,7 +23,7 @@
     });
     term.open(document.getElementById('terminal'));
     term.prompt = () => {
-      term.write("slipstream >> ");
+      term.write("pils >> ");
     };
     term.prompt();
 
