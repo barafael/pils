@@ -1,17 +1,19 @@
-/* screen configs */
 * {
+    font-family: 'Roboto Mono';
     box-sizing: border-box;
     padding: 0;
     margin: 0;
 }
 
 body {
-    background-color: #f4f4f4;
-    font-family: 'Roboto', monospace;
+    background: url(https://buildyourownlisp.com/static/img/halftone.png);
+    margin: 0px;
+    padding: 0px;
 }
 
 ul {
     list-style: none;
+    white-space: pre-wrap;
 }
 
 h1 {
@@ -22,10 +24,10 @@ h1 {
     color: #3c3c3e;
 }
 
-/* chatbox */
 .chat {
-    max-width: 400px;
+    max-width: 80%;
     min-height: 400px;
+    background: url(https://buildyourownlisp.com/static/img/halftone.png);
     background-color: #fff;
     padding-right: 15px;
     padding-left: 15px;
@@ -33,7 +35,6 @@ h1 {
     border-radius: 0.5rem;
 }
 
-/* messages */
 .messages {
     display: flex;
     flex-direction: column;
@@ -44,6 +45,8 @@ h1 {
 .message-list {
     overflow-y: scroll;
     max-height: 500px;
+    padding-left: 10%;
+    padding-right: 10%;
 }
 
 .message-item {
@@ -57,16 +60,15 @@ h1 {
 }
 
 .item-primary {
-    background-color: #f6f7f8;
-    color: #3c3c3e;
+    background-color: #198cff;
+    color: #e0e0e0;
 }
 
 .item-secondary {
-    background-color: #5ccad7;
-    color: #fff;
+    background-color: #ff9422;
+    color: rgb(52, 52, 52);
 }
 
-/* messages input */
 .message-input {
     display: flex;
     padding: 20px 0;
@@ -80,7 +82,7 @@ h1 {
 }
 
 .message-input button {
-    padding: 10px;
+    padding: 15px;
     margin-left: 10px;
     border-radius: 0.5rem;
     border: none;
