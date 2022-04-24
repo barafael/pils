@@ -131,6 +131,17 @@ mod test {
     }
 
     #[test]
+    fn division() {
+        let operands = Sexpr(
+            [Value::Num(12), Value::Num(1), Value::Num(4)]
+                .into_iter()
+                .collect::<VecDeque<_>>(),
+        );
+        let result = operands.op("/").unwrap();
+        assert_eq!(result, Value::Num(3));
+    }
+
+    #[test]
     fn rejects_to_divide_by_zero() {
         let operands = Sexpr(
             [Value::Num(12), Value::Num(0), Value::Num(4)]

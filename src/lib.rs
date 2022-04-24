@@ -29,6 +29,16 @@ pub fn process(line: &str) -> Result<Value, Error> {
 
 #[wasm_bindgen]
 #[must_use]
+pub fn process_str(line: &str) -> String {
+    let result = process(line);
+    match result {
+        Ok(v) => format!("{}", v),
+        Err(e) => format!("{:?}", e),
+    }
+}
+
+#[wasm_bindgen]
+#[must_use]
 pub fn help_text() -> String {
     r#"
 Welcome to slipstream, a simple lisp :)
@@ -67,12 +77,30 @@ Thanks and credits to Daniel Holden for this brilliant resource.
     .to_string()
 }
 
-#[wasm_bindgen]
-#[must_use]
-pub fn process_str(line: &str) -> String {
-    let result = process(line);
-    match result {
-        Ok(v) => format!("{}", v),
-        Err(e) => format!("{:?}", e),
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn process_simple_sexpr() {
+        assert_eq!(process_str("* 2 (+ 4 5) (/ 10 2) (-2) (- 1 2 3)"), "1080");
+    }
+
+    #[test]
+    fn process_simple_qexpr() {
+        assert_eq!(process_str("{ * 1 2 3 }"), "{ * 1 2 3 }");
+    }
+
+    #[test]
+    fn process_join() {
+        assert_eq!(
+            process_str("join { { 1 2 3 } { 4 ( 5 6 ) } }"),
+            "{ 1 2 3 4 ( 5 6 ) }"
+        );
+    }
+
+    #[test]
+    fn process_eval() {
+        assert_eq!(process_str("eval { tail ( list 1 2 3 4 ) }"), "{ 2 3 4 }");
     }
 }
