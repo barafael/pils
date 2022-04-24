@@ -109,26 +109,28 @@
   <script type="module">
     import init, { process_str, help_text } from "./pkg/pils.js";
 
-    init()
+    init();
 
     // Variables
-    var messages = document.querySelector('.message-list')
-    var btn = document.querySelector('.btn')
-    var input = document.querySelector('input')
+    var messages = document.querySelector(".message-list");
+    var btn = document.querySelector(".btn");
+    var input = document.querySelector("input");
 
     // Button/Enter Key
-    btn.addEventListener('click', sendMessage)
-    input.addEventListener('keyup', function (e) { if (e.keyCode == 13) sendMessage() })
+    btn.addEventListener("click", sendMessage);
+    input.addEventListener("keyup", function (e) {
+      if (e.keyCode == 13) sendMessage();
+    });
 
     // Messenger Functions
     function sendMessage() {
       var msg = input.value;
-      input.value = ''
-      addMessage("query", msg, "item-secondary")
+      input.value = "";
+      addMessage("query", msg, "item-secondary");
       if (msg.startsWith("help")) {
         addMessage("pils", help_text(), "item-primary");
       } else {
-        let result = process_str(msg)
+        let result = process_str(msg);
         addMessage("pils", result, "item-primary");
       }
     }
@@ -136,13 +138,12 @@
     function addMessage(from, msg, klass) {
       let formatted = `${from}: ${msg}`;
       console.log(formatted);
-      var message = document.createElement('li')
-      message.classList.add('message-item', klass)
-      message.innerHTML = msg
-      messages.appendChild(message)
+      var message = document.createElement("li");
+      message.classList.add("message-item", klass);
+      message.innerHTML = msg;
+      messages.appendChild(message);
       messages.scrollTop = messages.scrollHeight;
     }
-
   </script>
   <div id="terminal"></div>
 </body>
