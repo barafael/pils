@@ -109,17 +109,19 @@
   <script type="module">
     import init, { process_str, help_text } from "./pkg/pils.js";
 
-    init();
-
     // Variables
     var messages = document.querySelector(".message-list");
     var btn = document.querySelector(".btn");
     var input = document.querySelector("input");
 
-    // Button/Enter Key
-    btn.addEventListener("click", sendMessage);
-    input.addEventListener("keyup", function (e) {
-      if (e.keyCode == 13) sendMessage();
+    init().then(() => {
+      // Button/Enter Key
+      btn.addEventListener("click", sendMessage);
+      input.addEventListener("keyup", function (e) {
+        if (e.keyCode == 13) sendMessage();
+      });
+
+      addMessage("pils", help_text(), "item-primary");
     });
 
     // Messenger Functions
