@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Slipstream REPL</title>
+  <title>pils REPL</title>
   <style>
     /* screen configs */
     * {
@@ -14,7 +14,7 @@
 
     body {
       background-color: #f4f4f4;
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Roboto', monospace;
     }
 
     ul {
@@ -37,7 +37,7 @@
       padding-right: 15px;
       padding-left: 15px;
       margin: 20px auto;
-      border-radius: 1rem;
+      border-radius: 0.5rem;
     }
 
     /* messages */
@@ -55,7 +55,7 @@
 
     .message-item {
       padding: 20px;
-      border-radius: 0.75rem;
+      border-radius: 0.25rem;
       margin: 20px 0;
     }
 
@@ -82,14 +82,14 @@
     .message-input input {
       width: 100%;
       padding: 10px;
-      border-radius: 2rem;
+      border-radius: 0.5rem;
       border: 1px solid #a5a5a5;
     }
 
     .message-input button {
       padding: 10px;
       margin-left: 10px;
-      border-radius: 5px;
+      border-radius: 0.5rem;
       border: none;
       cursor: pointer;
     }
@@ -110,9 +110,6 @@
     import init, { process_str, help_text } from "./pkg/pils.js";
 
     init()
-      .then(() => {
-        console.log("done");
-      });
 
     // Variables
     var messages = document.querySelector('.message-list')
@@ -139,13 +136,9 @@
     function addMessage(from, msg, klass) {
       let formatted = `${from}: ${msg}`;
       console.log(formatted);
-      writeLine(formatted, klass)
-    }
-
-    function writeLine(text, klass) {
       var message = document.createElement('li')
       message.classList.add('message-item', klass)
-      message.innerHTML = text
+      message.innerHTML = msg
       messages.appendChild(message)
       messages.scrollTop = messages.scrollHeight;
     }
