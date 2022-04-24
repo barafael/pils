@@ -1,0 +1,21 @@
+{
+  "name": "pils",
+  "collaborators": [
+    "Rafael Bachmann <rafael.bachmann.93@gmail.com>"
+  ],
+  "description": "Super simple lisp inspired by buildyourownlisp.com, in pure Rust.",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/barafael/pils"
+  },
+  "files": [
+    "pils_bg.wasm",
+    "pils.js",
+    "pils.d.ts"
+  ],
+  "module": "pils.js",
+  "types": "pils.d.ts",
+  "sideEffects": false
+}

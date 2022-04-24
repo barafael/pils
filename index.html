@@ -4,11 +4,108 @@
 <head>
   <meta charset="utf-8">
   <title>Slipstream REPL</title>
-  <link rel="stylesheet" href="node_modules/xterm/css/xterm.css" />
-  <script src="node_modules/xterm/lib/xterm.js"></script>
+  <style>
+    /* screen configs */
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      background-color: #f4f4f4;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    h1 {
+      text-transform: uppercase;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      color: #3c3c3e;
+    }
+
+    /* chatbox */
+    .chat {
+      max-width: 400px;
+      min-height: 400px;
+      background-color: #fff;
+      padding-right: 15px;
+      padding-left: 15px;
+      margin: 20px auto;
+      border-radius: 1rem;
+    }
+
+    /* messages */
+    .messages {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 500px;
+    }
+
+    .message-list {
+      overflow-y: scroll;
+      max-height: 500px;
+    }
+
+    .message-item {
+      padding: 20px;
+      border-radius: 0.75rem;
+      margin: 20px 0;
+    }
+
+    .message-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .item-primary {
+      background-color: #f6f7f8;
+      color: #3c3c3e;
+    }
+
+    .item-secondary {
+      background-color: #5ccad7;
+      color: #fff;
+    }
+
+    /* messages input */
+    .message-input {
+      display: flex;
+      padding: 20px 0;
+    }
+
+    .message-input input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 2rem;
+      border: 1px solid #a5a5a5;
+    }
+
+    .message-input button {
+      padding: 10px;
+      margin-left: 10px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="chat">
+    <div class="messages">
+      <ul class="message-list"></ul>
+      <div class="message-input">
+        <input type="text" placeholder="Type your message..." />
+        <button type="button" class="btn">Send</button>
+      </div>
+    </div>
+  </div>
   <script type="module">
     import init, { process_str, help_text } from "./pkg/pils.js";
 
@@ -17,32 +114,41 @@
         console.log("done");
       });
 
-    let line = ""
-    var term = new Terminal({
-      cursorBlink: true,
-    });
-    term.open(document.getElementById('terminal'));
-    term.prompt = () => {
-      term.write("pils >> ");
-    };
-    term.prompt();
+    // Variables
+    var messages = document.querySelector('.message-list')
+    var btn = document.querySelector('.btn')
+    var input = document.querySelector('input')
 
-    term.onKey(e => {
-      term.write(e.key)
-      line += e.key
-      if (e.key == '\r') {
-        if (line.startsWith("help")) {
-          term.write(help_text())
-        } else {
-          let result = process_str(line)
-          line = ""
-          term.write('\n');
-          term.write(result);
-        }
-        term.write("\r\n");
-        term.prompt()
+    // Button/Enter Key
+    btn.addEventListener('click', sendMessage)
+    input.addEventListener('keyup', function (e) { if (e.keyCode == 13) sendMessage() })
+
+    // Messenger Functions
+    function sendMessage() {
+      var msg = input.value;
+      input.value = ''
+      addMessage("query", msg, "item-secondary")
+      if (msg.startsWith("help")) {
+        addMessage("pils", help_text(), "item-primary");
+      } else {
+        let result = process_str(msg)
+        addMessage("pils", result, "item-primary");
       }
-    });
+    }
+
+    function addMessage(from, msg, klass) {
+      let formatted = `${from}: ${msg}`;
+      console.log(formatted);
+      writeLine(formatted, klass)
+    }
+
+    function writeLine(text, klass) {
+      var message = document.createElement('li')
+      message.classList.add('message-item', klass)
+      message.innerHTML = text
+      messages.appendChild(message)
+      messages.scrollTop = messages.scrollHeight;
+    }
 
   </script>
   <div id="terminal"></div>
