@@ -1,4 +1,3 @@
-use anyhow::Context;
 use pils::{help_text, process};
 use rustyline::{error::ReadlineError, Editor};
 
@@ -17,8 +16,10 @@ fn main() -> anyhow::Result<()> {
                     continue;
                 }
 
-                let result = process(line.as_str()).context("Failed to process input")?;
-                println!("{}", result);
+                match process(line.as_str()) {
+                    Ok(v) => println!("{}", v),
+                    Err(e) => println!("error: {:#?}", e),
+                }
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");

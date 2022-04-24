@@ -28,5 +28,5 @@ pub enum Error {
     ParseNumber(String),
 
     #[error("Failed to evaluate expression: {0}")]
-    Eval(#[from] EvalError),
+    Eval(#[source] EvalError),
 }
