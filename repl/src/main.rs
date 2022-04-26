@@ -18,7 +18,7 @@ fn main() -> anyhow::Result<()> {
 
                 match process(line.as_str()) {
                     Ok(v) => println!("{}", v),
-                    Err(e) => println!("error: {:#?}", e),
+                    Err(e) => println!("error: {}", e),
                 }
             }
             Err(ReadlineError::Interrupted) => {

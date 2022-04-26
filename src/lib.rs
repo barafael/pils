@@ -33,7 +33,7 @@ pub fn process_str(line: &str) -> String {
     let result = process(line);
     match result {
         Ok(v) => format!("{}", v),
-        Err(e) => format!("{:?}", e),
+        Err(e) => format!("{}", e),
     }
 }
 
