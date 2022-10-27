@@ -103,4 +103,21 @@ mod test {
     fn process_eval() {
         assert_eq!(process_str("eval { tail ( list 1 2 3 4 ) }"), "{ 2 3 4 }");
     }
+
+    #[test]
+    fn displays() {
+        let line = "eval { tail ( list 1 2 3 4 ) }";
+        let mut pairs = Pils::parse(Rule::Pils, line)
+            .map_err(|_| Error::ParseInput(line.to_string()))
+            .unwrap();
+        let pair = pairs.next().ok_or(Error::EmptyPair).unwrap();
+
+        let val = Value::from_pair(pair)
+            .map_err(|_| Error::MakeValue)
+            .unwrap()
+            .unwrap();
+
+        let result = format!("{val}");
+        assert_eq!(format!("( {line} )"), result);
+    }
 }
