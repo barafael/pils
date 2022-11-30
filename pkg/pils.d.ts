@@ -8,14 +8,25 @@ export function process_str(line: string): string;
 /**
 * @returns {string}
 */
+export function get_example_environment(): string;
+/**
+* @returns {string}
+*/
 export function help_text(): string;
+/**
+*/
+export class Environment {
+  free(): void;
+}
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly process_str: (a: number, b: number, c: number) => void;
+  readonly get_example_environment: (a: number) => void;
   readonly help_text: (a: number) => void;
+  readonly __wbg_environment_free: (a: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
