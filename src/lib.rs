@@ -40,8 +40,7 @@ pub fn process_str(line: &str) -> String {
 #[wasm_bindgen]
 #[must_use]
 pub fn help_text() -> String {
-    r#"
-Welcome to pils, a simple lisp :)
+    r#"Welcome to pils, a simple lisp :)
 
 example expressions:
     * 1 2 3 4 ( + 3 4) 0
