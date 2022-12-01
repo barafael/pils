@@ -1,90 +1,122 @@
-* {
-    font-family: 'Roboto Mono';
-    box-sizing: border-box;
-    padding: 0;
+html {
     margin: 0;
+    padding: 0;
 }
 
 body {
-    background: url(https://buildyourownlisp.com/static/img/halftone.png);
+    font-family: 'Roboto Mono';
+    background: url(https://buildyourownlisp.com/static/img/halftone.png), #fefdf7;
     margin: 0px;
     padding: 0px;
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 100vw;
+    grid-template-rows: 70vh 30vh;
+    justify-items: center;
 }
 
-ul {
+section.messages {
+    width: 1000px;
+    display: grid;
+    padding: 20px 0;
+    grid-template-rows: 1fr 50px;
+    grid-template-columns: 1fr 100px;
+    grid-gap: 20px;
+}
+
+section.messages ul {
     list-style: none;
-    white-space: pre-wrap;
-}
-
-h1 {
-    text-transform: uppercase;
-    margin: 0 auto;
-    padding: 20px;
-    text-align: center;
-    color: #3c3c3e;
-}
-
-.chat {
-    max-width: 80%;
-    min-height: 400px;
-    background: url(https://buildyourownlisp.com/static/img/halftone.png);
-    background-color: #fff;
-    padding-right: 15px;
-    padding-left: 15px;
-    margin: 20px auto;
-    border-radius: 0.5rem;
-}
-
-.messages {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 500px;
-}
-
-.message-list {
     overflow-y: scroll;
-    max-height: 500px;
-    padding-left: 10%;
-    padding-right: 10%;
+    padding: 10px 10px 0 10px;
+    margin:0;
+    grid-column: 1/3;
 }
 
-.message-item {
+section.messages ul li {
+    white-space: pre-wrap;
     padding: 20px;
-    border-radius: 0.25rem;
-    margin: 20px 0;
+    border-radius: 10px;
+    position: relative;
+    height: fit-content;
 }
 
-.message-item:last-child {
-    margin-bottom: 0;
+section.messages ul li.item-primary {
+    background-color: #3498db;
+    color: #ecf0f1;
+    margin: 0 110px 20px 10px;
 }
 
-.item-primary {
-    background-color: #198cff;
-    color: #e0e0e0;
+section.messages ul li.item-primary:after {
+    content: "";
+    position: absolute;
+    left: -10px;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 20px 20px;
+    border-color: transparent transparent #3498db transparent;
 }
 
-.item-secondary {
-    background-color: #ff9422;
-    color: rgb(52, 52, 52);
+section.messages ul li.item-secondary {
+    background-color: #e67e22;
+    color: #2c3e50;
+    margin: 0 10px 20px 110px;
 }
 
-.message-input {
+section.messages ul li.item-secondary:after {
+    content: "";
+    position: absolute;
+    right: -10px;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 20px 0 0 20px;
+    border-color: transparent transparent transparent #e67e22;
+}
+
+section.messages div.message-input {
     display: flex;
     padding: 20px 0;
 }
 
-.message-input input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 0.5rem;
-    border: 1px solid #a5a5a5;
+#input {
+    background-color: #34495e;
+    grid-column: 1;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    color: #ecf0f1;
+    font-family: 'Roboto Mono';
 }
 
-.message-input button {
-    padding: 15px;
-    margin-left: 10px;
-    border-radius: 0.5rem;
+#input:focus {
+    outline: none;
+    border: none;
+    background-color: #34495e;
+}
+
+#btn {
+    grid-column: 2;
+    border-radius: 10px;
     border: none;
     cursor: pointer;
+    background: url("material_pils.svg"), #34495e;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 35px;
+    transition: background .1s;
+}
+
+#btn:focus, #btn:hover {
+    background-size: 40px;
+    outline: none;
+}
+
+@media screen and (max-width: 1100px) {
+    section.messages {
+        width: 90vw;
+    }
 }

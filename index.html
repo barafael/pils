@@ -1,65 +1,19 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="utf-8">
   <title>pils REPL</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css?family=Roboto Mono" rel="stylesheet">
 </head>
-
 <body>
-  <div class="chat">
-    <div class="messages">
-      <ul class="message-list"></ul>
-      <div class="message-input">
-        <input type="text" placeholder="Type your pils expression..." />
-        <button type="button" class="btn">pils!</button>
-      </div>
-    </div>
-  </div>
-  <script type="module">
-    import init, { process_str, help_text } from "./pkg/pils.js";
-
-    // Variables
-    var messages = document.querySelector(".message-list");
-    var btn = document.querySelector(".btn");
-    var input = document.querySelector("input");
-
-    init().then(() => {
-      // Button/Enter Key
-      btn.addEventListener("click", sendMessage);
-      input.addEventListener("keyup", function (e) {
-        if (e.keyCode == 13) sendMessage();
-      });
-
-      addMessage("pils", help_text(), "item-primary");
-    });
-
-    // Messenger Functions
-    function sendMessage() {
-      var msg = input.value;
-      input.value = "";
-      addMessage("query", msg, "item-secondary");
-      if (msg.startsWith("help")) {
-        addMessage("pils", help_text(), "item-primary");
-      } else {
-        let result = process_str(msg);
-        addMessage("pils", result, "item-primary");
-      }
-    }
-
-    function addMessage(from, msg, klass) {
-      let formatted = `${from}: ${msg}`;
-      console.log(formatted);
-      var message = document.createElement("li");
-      message.classList.add("message-item", klass);
-      message.innerHTML = msg;
-      messages.appendChild(message);
-      messages.scrollTop = messages.scrollHeight;
-    }
-  </script>
-  <div id="terminal"></div>
+  <section class="messages">
+    <ul class="message-list"></ul>
+    <input id="input" type="text" placeholder="Type your pils expression..." />
+    <input id="btn" type="button"/>
+  </section>
+  <section class="environment">
+  </section>
+  <script type="module" src="main.js"></script>
 </body>
-
 </html>
