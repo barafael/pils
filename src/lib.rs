@@ -1,45 +1,56 @@
 use crate::value::Value;
-use error::Error;
+use anyhow::anyhow;
+use anyhow::{Context, Error};
+use environment::Environment;
+use once_cell::sync::Lazy;
 use parser::{Pils, Rule};
 use pest::Parser;
+use std::collections::HashMap;
+use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
 
-mod error;
-mod eval_error;
+pub mod builtin;
+pub mod environment;
+mod function;
 mod parser;
 mod qexpr;
 mod sexpr;
 mod value;
 
-pub fn process(line: &str) -> Result<Value, Error> {
+static ENVIRONMENT: Lazy<Mutex<Environment>> = Lazy::new(|| Mutex::new(Environment::default()));
+
+pub fn process(input: &str) -> Result<Value, Error> {
     let mut pairs =
-        Pils::parse(Rule::Pils, line).map_err(|_| Error::ParseInput(line.to_string()))?;
-    let pair = pairs.next().ok_or(Error::EmptyPair)?;
+        Pils::parse(Rule::Pils, input).with_context(|| format!("Failed to parse input {input}"))?;
+    let pair = pairs.next().ok_or_else(|| anyhow::anyhow!("Empty pair"))?;
 
     if pairs.next().is_some() {
-        return Err(Error::MoreThanOneElementInPair);
+        return Err(anyhow::anyhow!("More than one element in pair"));
     }
 
     let val = Value::from_pair(pair)
-        .map_err(|_| Error::MakeValue)?
+        .map_err(|_| anyhow::anyhow!("Failed to create value"))? // accenture disapproves
         .unwrap();
 
-    Value::eval(val).map_err(Error::Eval)
+    let mut env = ENVIRONMENT.lock().unwrap();
+
+    Value::eval(val, &mut env)
 }
 
 #[wasm_bindgen]
 #[must_use]
 pub fn process_str(line: &str) -> String {
-    let result = process(line);
+    let result = process(line.trim());
     match result {
         Ok(v) => format!("{v}"),
-        Err(e) => format!("{e}"),
+        Err(e) => format!("Error: {e}"),
     }
 }
 
 #[wasm_bindgen]
 #[must_use]
 pub fn help_text() -> String {
+    // TODO include_str here and put to docs and readme maybe
     r#"Welcome to pils, a simple lisp :)
 
 example expressions:
@@ -76,6 +87,28 @@ Thanks and credits to Daniel Holden for this brilliant resource.
     .to_string()
 }
 
+#[wasm_bindgen]
+#[must_use]
+pub fn get_example_environment() -> String {
+    let line = "eval { tail ( list 1 2 3 4 ) }";
+    let mut pairs = Pils::parse(Rule::Pils, line)
+        .context("Failed to parse input")
+        .unwrap();
+    let pair = pairs.next().ok_or_else(|| anyhow!("empty pair")).unwrap();
+
+    let val = Value::from_pair(pair).unwrap().unwrap();
+    let env = Environment::from_iter([
+        ("key1".to_string(), val),
+        ("key2".to_string(), Value::Sym("function1".to_string())),
+    ]);
+    let env: HashMap<String, String> = env
+        .0
+        .iter()
+        .map(|(k, v)| (k.to_string(), format!("{v}")))
+        .collect();
+    serde_json::to_string(&env).unwrap()
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -94,8 +127,28 @@ mod test {
     fn process_join() {
         assert_eq!(
             process_str("join { { 1 2 3 } { 4 ( 5 6 ) } }"),
-            "{ 1 2 3 4 ( 5 6 ) }"
+            "{ 1 2 3 4 ( 5 6 ) }" // disagrees with variables.c, wtf?
         );
+    }
+
+    #[test]
+    fn example_11a() {
+        assert_eq!(process_str("+"), "<function>");
+    }
+
+    #[test]
+    fn example_11b() {
+        assert_eq!(process_str("eval (head {5 10 11 15})"), "5");
+    }
+
+    #[test]
+    fn example_11d() {
+        assert_eq!(process_str("(eval (head {+ - + - * /})) 10 20"), "30");
+    }
+
+    #[test]
+    fn example_11e() {
+        assert_eq!(process_str("hello"), "Error: unbound symbol");
     }
 
     #[test]
@@ -104,17 +157,24 @@ mod test {
     }
 
     #[test]
+    fn process_def() {
+        let _ = process_str("def {x} 100");
+        let _ = process_str("def {y} 200");
+        assert_eq!(process_str("+ x y"), "300".to_string());
+        let _ = process_str("def {a b} 5 6");
+        assert_eq!(process_str("+ a b"), "11".to_string());
+        let _ = process_str("def {arglist} {a b x y}");
+        let _ = process_str("def arglist 1 2 3 4");
+        assert_eq!(process_str("list a b x y"), "{ 1 2 3 4 }".to_string());
+    }
+
+    #[test]
     fn displays() {
         let line = "eval { tail ( list 1 2 3 4 ) }";
-        let mut pairs = Pils::parse(Rule::Pils, line)
-            .map_err(|_| Error::ParseInput(line.to_string()))
-            .unwrap();
-        let pair = pairs.next().ok_or(Error::EmptyPair).unwrap();
+        let mut pairs = Pils::parse(Rule::Pils, line).unwrap();
+        let pair = pairs.next().unwrap();
 
-        let val = Value::from_pair(pair)
-            .map_err(|_| Error::MakeValue)
-            .unwrap()
-            .unwrap();
+        let val = Value::from_pair(pair).unwrap().unwrap();
 
         let result = format!("{val}");
         assert_eq!(format!("( {line} )"), result);

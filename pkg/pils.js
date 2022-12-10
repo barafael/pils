@@ -101,10 +101,10 @@ export function process_str(line) {
 /**
 * @returns {string}
 */
-export function get_example_environment() {
+export function help_text() {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.get_example_environment(retptr);
+        wasm.help_text(retptr);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         return getStringFromWasm0(r0, r1);
@@ -117,10 +117,10 @@ export function get_example_environment() {
 /**
 * @returns {string}
 */
-export function help_text() {
+export function get_example_environment() {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.help_text(retptr);
+        wasm.get_example_environment(retptr);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         return getStringFromWasm0(r0, r1);

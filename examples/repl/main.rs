@@ -1,6 +1,7 @@
 use pils::{help_text, process};
 use rustyline::{error::ReadlineError, Editor};
 
+// TODO just one file
 fn main() -> anyhow::Result<()> {
     let mut prompt = Editor::<()>::new();
     loop {
