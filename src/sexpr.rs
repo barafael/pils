@@ -1,107 +1,95 @@
-use crate::{eval_error::EvalError, qexpr::Qexpr, value::Value};
+use crate::{environment::Environment, value::Value};
 use itertools::Itertools;
+use serde_derive::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Sexpr(pub(crate) VecDeque<Value>);
 
 impl Sexpr {
-    pub fn eval(self) -> Result<Value, EvalError> {
+    pub fn eval(self, env: &mut Environment) -> Result<Value, anyhow::Error> {
         let mut evaluated = self
             .0
             .into_iter()
-            .map(Value::eval)
-            .collect::<Result<VecDeque<_>, EvalError>>()?;
+            .map(|v| v.eval(env))
+            .collect::<Result<VecDeque<_>, anyhow::Error>>()?;
+
+        if evaluated.is_empty() {
+            return Ok(Value::Sexpr(Self(VecDeque::default())));
+        }
 
         if evaluated.len() == 1 {
             return Ok(evaluated[0].clone());
         }
 
-        let sym = match evaluated.pop_front() {
-            Some(Value::Sym(str)) => str,
-            Some(v) => return Err(EvalError::SExprDoesNotStartWithSymbol(v)),
-            None => {
-                return Ok(Value::Sexpr(Self(evaluated)));
-            }
+        let Value::Fun(fun) = evaluated.pop_front().unwrap() else {
+            return Err(anyhow::anyhow!("First element is not a function"));
         };
 
-        let operator = match sym.as_str() {
-            "list" => return Ok(Value::Qexpr(Qexpr(evaluated))),
-            "+" | "-" | "/" | "*" => return Self(evaluated).op(sym.as_str()),
-            o => o,
-        };
-
-        match operator {
-            "head" => {
-                if evaluated.len() != 1 {
-                    Err(EvalError::HeadOnTooManyArgs)
-                } else if let Value::Qexpr(q) = evaluated[0].clone() {
-                    q.head()
-                } else {
-                    Err(EvalError::HeadOnNonQexpr)
-                }
-            }
-            "tail" => {
-                if evaluated.len() != 1 {
-                    Err(EvalError::TailOnTooManyArgs)
-                } else if let Value::Qexpr(q) = evaluated[0].clone() {
-                    q.tail()
-                } else {
-                    Err(EvalError::TailOnNonQexpr)
-                }
-            }
-            "join" => {
-                if evaluated.len() != 1 {
-                    Err(EvalError::JoinOnTooManyArgs)
-                } else if let Value::Qexpr(q) = evaluated[0].clone() {
-                    q.join()
-                } else {
-                    Err(EvalError::JoinOnNonQexpr)
-                }
-            }
-            "eval" => {
-                if evaluated.len() != 1 {
-                    Err(EvalError::EvalOnTooManyArgs)
-                } else if let Value::Qexpr(q) = evaluated[0].clone() {
-                    q.eval()
-                } else {
-                    Err(EvalError::EvalOnNonQexpr)
-                }
-            }
-            op => Err(EvalError::InvalidOperator(op.to_string())),
-        }
+        fun.0(Value::Sexpr(Sexpr(evaluated)), env)
     }
 
-    pub fn op(self, operator: &str) -> Result<Value, EvalError> {
-        let mut results = VecDeque::new();
-        for num in self.0 {
-            match num {
-                Value::Num(num) => results.push_back(num),
-                val => return Err(EvalError::NonNumber(val)),
-            }
-        }
+    pub fn add(self) -> Result<Value, anyhow::Error> {
+        let n = self
+            .0
+            .into_iter()
+            .map(|n| match n {
+                Value::Num(n) => Ok(n),
+                _ => Err(anyhow::anyhow!("'add' on non-number")),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(Value::Num(n.into_iter().sum()))
+    }
 
-        match operator {
-            "+" => Ok(Value::Num(results.into_iter().sum())),
-            "-" => Ok(Value::Num(
-                results.into_iter().fold(0, |acc, val| acc - val),
-            )),
-            "*" => Ok(Value::Num(results.into_iter().product())),
-            "/" => {
-                if results.iter().any(|num| *num == 0) {
-                    return Err(EvalError::DivisionByZero);
-                }
-                if results.len() == 1 {
-                    return Ok(Value::Num(results[0]));
-                }
-                let mut fst = results[0];
-                for val in results.iter().skip(1) {
-                    fst /= val;
-                }
-                Ok(Value::Num(fst))
-            }
-            op => Err(EvalError::InvalidOperator(op.to_string())),
+    pub fn sub(self) -> Result<Value, anyhow::Error> {
+        let n = self
+            .0
+            .into_iter()
+            .map(|n| match n {
+                Value::Num(n) => Ok(n),
+                _ => Err(anyhow::anyhow!("'sub' on non-number")),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(Value::Num(n.into_iter().fold(0, |acc, val| acc - val)))
+    }
+
+    pub fn mul(self) -> Result<Value, anyhow::Error> {
+        let n = self
+            .0
+            .into_iter()
+            .map(|n| match n {
+                Value::Num(n) => Ok(n),
+                _ => Err(anyhow::anyhow!("'mul' on non-number")),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(Value::Num(n.into_iter().product()))
+    }
+
+    pub fn div(self) -> Result<Value, anyhow::Error> {
+        let n = self
+            .0
+            .into_iter()
+            .map(|n| match n {
+                Value::Num(0) => Err(anyhow::anyhow!("Division by zero")),
+                Value::Num(n) => Ok(n),
+                _ => Err(anyhow::anyhow!("'div' on non-number")),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        // TODO elegantify
+        if n.len() == 1 {
+            return Ok(Value::Num(n[0]));
         }
+        let mut fst = n[0];
+        for val in n.iter().skip(1) {
+            fst /= val;
+        }
+        Ok(Value::Num(fst))
+    }
+}
+
+impl FromIterator<Value> for Sexpr {
+    fn from_iter<T: IntoIterator<Item = Value>>(iter: T) -> Self {
+        Self(iter.into_iter().collect())
     }
 }
 
@@ -117,44 +105,41 @@ impl std::fmt::Display for Sexpr {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::eval_error::EvalError;
 
     #[test]
     fn sexpr_multiplication() {
-        let operands = Sexpr(
-            [Value::Num(1), Value::Num(2), Value::Num(4)]
-                .into_iter()
-                .collect::<VecDeque<_>>(),
-        );
-        let result = operands.op("*").unwrap();
-        assert_eq!(result, Value::Num(8));
+        let mut env = Environment::default();
+        let mul = env.0.get("*").unwrap();
+
+        let operands = Sexpr::from_iter([mul.clone(), Value::Num(1), Value::Num(2), Value::Num(4)]);
+        let num = operands.eval(&mut env).unwrap();
+        assert!(matches!(num, Value::Num(8)));
     }
 
     #[test]
     fn division() {
-        let operands = Sexpr(
-            [Value::Num(12), Value::Num(1), Value::Num(4)]
-                .into_iter()
-                .collect::<VecDeque<_>>(),
-        );
-        let result = operands.op("/").unwrap();
-        assert_eq!(result, Value::Num(3));
+        let mut env = Environment::default();
+        let div = env.0.get("/").unwrap();
+        let operands =
+            Sexpr::from_iter([div.clone(), Value::Num(12), Value::Num(1), Value::Num(4)]);
+        assert!(matches!(operands.eval(&mut env).unwrap(), Value::Num(3)));
     }
 
     #[test]
     fn rejects_to_divide_by_zero() {
-        let operands = Sexpr(
-            [Value::Num(12), Value::Num(0), Value::Num(4)]
-                .into_iter()
-                .collect::<VecDeque<_>>(),
-        );
-        let result = operands.op("/").unwrap_err();
-        assert_eq!(result, EvalError::DivisionByZero);
+        let mut env = Environment::default();
+        let div = env.0.get("/").unwrap();
+        let operands =
+            Sexpr::from_iter([div.clone(), Value::Num(12), Value::Num(0), Value::Num(4)]);
+        let result = operands.eval(&mut env).unwrap_err();
+        assert_eq!(format!("{}", result), "Division by zero");
     }
 
     #[test]
     fn unary_minus() {
-        let operands = Sexpr([Value::Num(12)].into_iter().collect::<VecDeque<_>>());
-        assert_eq!(operands.op("-").unwrap(), Value::Num(-12));
+        let mut env = Environment::default();
+        let sub = env.0.get("-").unwrap();
+        let operands = Sexpr::from_iter([sub.clone(), Value::Num(12)]);
+        assert!(matches!(operands.eval(&mut env).unwrap(), Value::Num(-12)));
     }
 }
