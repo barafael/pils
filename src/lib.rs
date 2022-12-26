@@ -49,6 +49,20 @@ pub fn process_str(line: &str) -> String {
 
 #[wasm_bindgen]
 #[must_use]
+pub fn get_env() -> String {
+    let Ok(env) = ENVIRONMENT.lock() else {
+        return "Failed to acquire environment".to_string()
+    };
+    let env = &env.0;
+    let env: HashMap<&String, &Value> = env
+        .iter()
+        .filter(|(_k, v)| !matches!(v, Value::Fun(_f)))
+        .collect();
+    serde_json::to_string_pretty(&env).unwrap_or("".to_string())
+}
+
+#[wasm_bindgen]
+#[must_use]
 pub fn help_text() -> String {
     // TODO include_str here and put to docs and readme maybe
     r#"Welcome to pils, a simple lisp :)

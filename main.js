@@ -1,4 +1,4 @@
-import init, { process_str, help_text } from "./pkg/pils.js";
+import init, { process_str, help_text, get_env } from "./pkg/pils.js";
 
 let messages, btn, input;
 
@@ -11,6 +11,8 @@ function sendMessage() {
   } else {
     let result = process_str(msg);
     addMessage("pils", result, "item-primary");
+    let env = get_env();
+    updateEnvironment(env);
   }
 }
 
@@ -24,12 +26,16 @@ function addMessage(from, msg, klass) {
   messages.scrollTop = messages.scrollHeight;
 }
 
+function updateEnvironment(env) {
+  console.log(env)
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   messages = document.querySelector(".message-list");
   btn = document.getElementById("btn");
   input = document.getElementById("input");
   input.focus();
-  
+
   init().then(() => {
     btn.addEventListener("click", () => {
       sendMessage();
