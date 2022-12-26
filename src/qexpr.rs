@@ -11,9 +11,7 @@ impl Qexpr {
             return Err(EvalError::HeadOnEmpty);
         }
         Ok(Value::Qexpr(Self(
-            [self.0.pop_front().unwrap()]
-                .into_iter()
-                .collect::<VecDeque<_>>(),
+            std::iter::once(self.0.pop_front().unwrap()).collect::<VecDeque<_>>(),
         )))
     }
 
@@ -28,9 +26,8 @@ impl Qexpr {
     pub fn join(self) -> Result<Value, EvalError> {
         let mut joined = VecDeque::new();
         for child in self.0 {
-            let mut child = match child {
-                Value::Qexpr(child) => child,
-                _ => return Err(EvalError::JoinOnNonQexpr),
+            let Value::Qexpr(mut child) = child else {
+                return  Err(EvalError::JoinOnNonQexpr);
             };
             joined.append(&mut child.0);
         }

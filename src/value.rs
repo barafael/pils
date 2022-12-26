@@ -16,7 +16,7 @@ pub enum Value {
 impl Value {
     pub fn eval(self) -> Result<Self, EvalError> {
         match self {
-            Value::Sexpr(s) => Sexpr::eval(s),
+            Self::Sexpr(s) => Sexpr::eval(s),
             v => Ok(v),
         }
     }
@@ -57,10 +57,10 @@ impl Value {
 impl std::fmt::Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Value::Num(n) => write!(f, "{}", n),
-            Value::Sym(s) => write!(f, "{}", s),
-            Value::Sexpr(s) => write!(f, "{}", s),
-            Value::Qexpr(q) => write!(f, "{}", q),
+            Self::Num(n) => write!(f, "{n}"),
+            Self::Sym(s) => write!(f, "{s}"),
+            Self::Sexpr(s) => write!(f, "{s}"),
+            Self::Qexpr(q) => write!(f, "{q}"),
         }
     }
 }

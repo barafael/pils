@@ -32,8 +32,8 @@ pub fn process(line: &str) -> Result<Value, Error> {
 pub fn process_str(line: &str) -> String {
     let result = process(line);
     match result {
-        Ok(v) => format!("{}", v),
-        Err(e) => format!("{}", e),
+        Ok(v) => format!("{v}"),
+        Err(e) => format!("{e}"),
     }
 }
 
