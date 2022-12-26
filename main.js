@@ -1,4 +1,4 @@
-import init, { process_str, help_text, get_env } from "./pkg/pils.js";
+import init, { process_str, help_text, get_env_json, get_env_tuples } from "./pkg/pils.js";
 
 let messages, btn, input;
 
@@ -11,7 +11,7 @@ function sendMessage() {
   } else {
     let result = process_str(msg);
     addMessage("pils", result, "item-primary");
-    let env = get_env();
+    let env = get_env_tuples();
     updateEnvironment(env);
   }
 }

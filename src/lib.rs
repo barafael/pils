@@ -49,7 +49,7 @@ pub fn process_str(line: &str) -> String {
 
 #[wasm_bindgen]
 #[must_use]
-pub fn get_env() -> String {
+pub fn get_env_json() -> String {
     let Ok(env) = ENVIRONMENT.lock() else {
         return "Failed to acquire environment".to_string()
     };
@@ -58,7 +58,22 @@ pub fn get_env() -> String {
         .iter()
         .filter(|(_k, v)| !matches!(v, Value::Fun(_f)))
         .collect();
-    serde_json::to_string_pretty(&env).unwrap_or("".to_string())
+    serde_json::to_string_pretty(&env).unwrap_or("Serialization fault".to_string())
+}
+
+#[wasm_bindgen]
+#[must_use]
+pub fn get_env_tuples() -> String {
+    let Ok(env) = ENVIRONMENT.lock() else {
+        return "Failed to acquire environment".to_string()
+    };
+    let env = &env.0;
+    let env: HashMap<&String, String> = env
+        .iter()
+        .filter(|(_k, v)| !matches!(v, Value::Fun(_f)))
+        .map(|(k, v)| (k, format!("{v}")))
+        .collect();
+    serde_json::to_string_pretty(&env).unwrap_or("Serialization fault".to_string())
 }
 
 #[wasm_bindgen]

@@ -8,7 +8,11 @@ export function process_str(line: string): string;
 /**
 * @returns {string}
 */
-export function get_env(): string;
+export function get_env_json(): string;
+/**
+* @returns {string}
+*/
+export function get_env_tuples(): string;
 /**
 * @returns {string}
 */
@@ -29,7 +33,8 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_environment_free: (a: number) => void;
   readonly process_str: (a: number, b: number, c: number) => void;
-  readonly get_env: (a: number) => void;
+  readonly get_env_json: (a: number) => void;
+  readonly get_env_tuples: (a: number) => void;
   readonly help_text: (a: number) => void;
   readonly get_example_environment: (a: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
