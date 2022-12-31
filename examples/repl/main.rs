@@ -3,7 +3,7 @@ use rustyline::{error::ReadlineError, Editor};
 
 // TODO just one file
 fn main() -> anyhow::Result<()> {
-    let mut prompt = Editor::<()>::new();
+    let mut prompt = Editor::<()>::new().expect("Failed to create prompt");
     loop {
         match prompt.readline("pils >> ") {
             Ok(line) => {
