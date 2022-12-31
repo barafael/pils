@@ -10,13 +10,13 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
-[dev-dependencies]
-# dependencies for repl example
-anyhow = { version = "1.0.68", features = ["std", "backtrace"] }
-rustyline = "10.0.0"
+[[bin]]
+name = "repl"
+path = "bin/repl.rs"
 
 [dependencies]
-anyhow = "1.0.68"
+anyhow = { version = "1.0.68", features = ["std", "backtrace"] }
+rustyline = "10.0.0"
 itertools = "0.10.5"
 once_cell = "1.17.0"
 pest = { version = "2.5.2", features = ["pretty-print"] }
