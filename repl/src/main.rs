@@ -1,4 +1,4 @@
-use pils::{help_text, process};
+use pils::{help::HELP_TEXT, process};
 use rustyline::{error::ReadlineError, Editor};
 
 // TODO just one file
@@ -13,7 +13,7 @@ fn main() -> anyhow::Result<()> {
                 prompt.add_history_entry(&line);
 
                 if line == "help" {
-                    println!("{}", help_text());
+                    println!("{}", HELP_TEXT);
                     continue;
                 }
 

@@ -1,9 +1,7 @@
 use crate::{builtin, function::Function, value::Value};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
-use wasm_bindgen::prelude::wasm_bindgen;
 
-#[wasm_bindgen]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Environment(pub(crate) HashMap<String, Value>);
 

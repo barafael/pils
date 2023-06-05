@@ -1,4 +1,4 @@
-import init, { process_str, help_text, get_env_json, get_env_tuples } from "./pkg/pils.js";
+import init, { process_str, help_text, get_env_json, get_env_tuples } from "./pkg/pils_web.js";
 
 let messages, btn, input;
 

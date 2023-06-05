@@ -1,0 +1,16 @@
+[package]
+name = "pils-web"
+authors = ["Rafael Bachmann <rafael.bachmann.93@gmail.com>"]
+version = "0.1.0"
+description = "Super simple lisp inspired by buildyourownlisp.com, in pure Rust."
+repository = "https://github.com/barafael/pils"
+license = "Apache-2.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+anyhow = { version = "1.0.68", features = ["std", "backtrace"] }
+pils = { path = "../pils" }
+wasm-bindgen = "0.2.83"
