@@ -1,26 +1,24 @@
+use anyhow::Context;
 use pils::{help::HELP_TEXT, process};
 use rustyline::{error::ReadlineError, Editor};
 
-// TODO just one file
 fn main() -> anyhow::Result<()> {
-    let mut prompt = Editor::<()>::new().expect("Failed to create prompt");
+    let mut prompt = Editor::<()>::new().context("Failed to create prompt")?;
     loop {
         match prompt.readline("pils >> ") {
             Ok(line) => {
                 if line == "exit" || line == "quit" {
                     break;
                 }
-                prompt.add_history_entry(&line);
 
                 if line == "help" {
-                    println!("{}", HELP_TEXT);
+                    println!("{HELP_TEXT}");
                     continue;
                 }
 
-                match process(line.as_str()) {
-                    Ok(v) => println!("{}", v),
-                    Err(e) => println!("error: {}", e),
-                }
+                prompt.add_history_entry(&line);
+
+                println!("{}", process(line.as_str())?);
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
@@ -31,7 +29,7 @@ fn main() -> anyhow::Result<()> {
                 break;
             }
             Err(err) => {
-                println!("Error: {:?}", err);
+                println!("{}", anyhow::format_err!(err));
                 break;
             }
         }

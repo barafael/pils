@@ -26,7 +26,7 @@ impl Sexpr {
             return Err(anyhow::anyhow!("First element is not a function"));
         };
 
-        fun.0(Value::Sexpr(Sexpr(evaluated)), env)
+        fun.0(Value::Sexpr(Self(evaluated)), env)
     }
 
     pub fn add(self) -> Result<Value, anyhow::Error> {

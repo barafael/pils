@@ -57,7 +57,9 @@ pub fn get_env_json() -> String {
         .iter()
         .filter(|(_k, v)| !matches!(v, Value::Fun(_f)))
         .collect();
-    serde_json::to_string_pretty(&env).unwrap_or("Serialization fault".to_string())
+    serde_json::to_string_pretty(&env)
+        .context("Serialization fault")
+        .unwrap()
 }
 
 #[must_use]
@@ -71,7 +73,9 @@ pub fn get_env_tuples() -> String {
         .filter(|(_k, v)| !matches!(v, Value::Fun(_f)))
         .map(|(k, v)| (k, format!("{v}")))
         .collect();
-    serde_json::to_string_pretty(&env).unwrap_or("Serialization fault".to_string())
+    serde_json::to_string_pretty(&env)
+        .context("Serialization fault")
+        .unwrap()
 }
 
 #[must_use]
