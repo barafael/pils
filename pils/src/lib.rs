@@ -1,10 +1,14 @@
+#![feature(lazy_cell)]
+
 use crate::value::Value;
 use anyhow::{anyhow, Context, Error};
 use environment::Environment;
-use once_cell::sync::Lazy;
 use parser::{Pils, Rule};
 use pest::Parser;
-use std::{collections::HashMap, sync::Mutex};
+use std::{
+    collections::HashMap,
+    sync::{LazyLock, Mutex},
+};
 
 pub mod builtin;
 pub mod environment;
@@ -18,7 +22,8 @@ mod value;
 #[cfg(test)]
 mod test;
 
-static ENVIRONMENT: Lazy<Mutex<Environment>> = Lazy::new(|| Mutex::new(Environment::default()));
+static ENVIRONMENT: LazyLock<Mutex<Environment>> =
+    LazyLock::new(|| Mutex::new(Environment::default()));
 
 pub fn process(input: &str) -> Result<Value, Error> {
     let mut pairs =
