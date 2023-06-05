@@ -18,3 +18,4 @@ cp index.html ../docs/
 cp main.js ../docs/
 cp material_pils.svg ../docs/
 cp style.css ../docs/
+cp favicon.ico ../docs/

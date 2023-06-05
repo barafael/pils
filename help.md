@@ -7,6 +7,9 @@ example expressions:
     eval (tail {tail tail {5 6 7}})
     tail { tail join eval head }
     eval {head (list 1 2 3 4)}
+    def {a b c} 1 2 3
+    def {args} {a b c}
+    def args 4 5 6
 
 +, -, *, / work as prefix operators on numbers
     and s-expressions that evaluate to numbers.
