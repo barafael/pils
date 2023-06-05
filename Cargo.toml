@@ -1,5 +1,5 @@
 [workspace]
 
-resolver = "2"
-
 members = ["pils", "repl", "pils-web"]
+
+resolver = "2"

@@ -8,6 +8,6 @@ license = "Apache-2.0"
 edition = "2021"
 
 [dependencies]
-anyhow = { version = "1.0.68", features = ["std", "backtrace"] }
-rustyline = "10.0.0"
+anyhow = { version = "1.0.71", features = ["std", "backtrace"] }
 pils = { path = "../pils" }
+rustyline = "11.0.0"

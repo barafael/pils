@@ -1,9 +1,9 @@
 use anyhow::Context;
 use pils::{help::HELP_TEXT, process};
-use rustyline::{error::ReadlineError, Editor};
+use rustyline::{error::ReadlineError, DefaultEditor};
 
 fn main() -> anyhow::Result<()> {
-    let mut prompt = Editor::<()>::new().context("Failed to create prompt")?;
+    let mut prompt = DefaultEditor::new().context("Failed to create prompt")?;
     loop {
         match prompt.readline("pils >> ") {
             Ok(line) => {
@@ -16,7 +16,7 @@ fn main() -> anyhow::Result<()> {
                     continue;
                 }
 
-                prompt.add_history_entry(&line);
+                prompt.add_history_entry(&line)?;
 
                 println!("{}", process(line.as_str())?);
             }

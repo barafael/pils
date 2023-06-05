@@ -11,6 +11,6 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-anyhow = { version = "1.0.68", features = ["std", "backtrace"] }
+anyhow = { version = "1.0.71", features = ["std", "backtrace"] }
 pils = { path = "../pils" }
-wasm-bindgen = "0.2.83"
+wasm-bindgen = "0.2.86"
