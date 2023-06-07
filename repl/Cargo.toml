@@ -1,5 +1,5 @@
 [package]
-name = "pils-repl"
+name = "repl"
 authors = ["Rafael Bachmann <rafael.bachmann.93@gmail.com>"]
 version = "0.1.0"
 description = "Super simple lisp inspired by buildyourownlisp.com, in pure Rust."

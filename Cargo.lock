@@ -377,15 +377,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pils-repl"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "pils",
- "rustyline",
-]
-
-[[package]]
 name = "pils-web"
 version = "0.1.0"
 dependencies = [
@@ -440,6 +431,15 @@ dependencies = [
  "getrandom",
  "redox_syscall",
  "thiserror",
+]
+
+[[package]]
+name = "repl"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "pils",
+ "rustyline",
 ]
 
 [[package]]
